@@ -3,7 +3,7 @@ import { createDecksTable, createCardsTable, createScoresTable, addScore, addDec
 import bodyParser from 'body-parser';
 
 // Configure and start the HTTP server.
-const port: number = 8080;
+const port: number = 8088;
 const app: Express = express();
 
 createDecksTable();
