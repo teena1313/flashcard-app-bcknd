@@ -16,6 +16,7 @@ type scoreRecord = {player: string, deck: string, score: number}
 let savedScores: scoreRecord[] = [];
 const savedDecks: Map<string, card[]> = new Map<string, card[]>();
 const {Client} = pg;
+const fs = require('fs');
 
 // require('dotenv').config()
 console.log("welcome to notecard backend :))");
@@ -26,7 +27,11 @@ const con: pg.Client = new Client({
    user: process.env.REACT_APP_USER,
    password: process.env.REACT_APP_PWD,
    database: process.env.REACT_APP_DB,
-   port: +(process.env.REACT_APP_PORT || 5432)
+   port: +(process.env.REACT_APP_PORT || 5432),
+   ssl: { 
+    rejectUnauthorized: true,
+    ca: fs.readFileSync('./us-west-2-bundle.pem').toString(), 
+  } 
 });
 
 try {
