@@ -19,8 +19,6 @@ const {Client} = pg;
 const fs = require('fs');
 
 // require('dotenv').config()
-console.log("welcome to notecard backend :))");
-
 
 const con: pg.Client = new Client({
    host: process.env.REACT_APP_HOST,
@@ -30,7 +28,7 @@ const con: pg.Client = new Client({
    port: +(process.env.REACT_APP_PORT || 5432),
    ssl: { 
     rejectUnauthorized: true,
-    ca: fs.readFileSync('./us-west-2-bundle.pem').toString(), 
+    ca: fs.readFileSync('./src/us-west-2-bundle.pem').toString(), 
   } 
 });
 
