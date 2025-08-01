@@ -64,19 +64,19 @@ export const createScoresTable = async () => {
 export const addScore = async(req: SafeRequest, res: SafeResponse): Promise<void> => {
   const newPlayer = req.body.player;
   if (newPlayer === undefined || typeof newPlayer !== 'string') {
-    res.status(400).send('missing "player" parameter / given param was not a string');
+    res.status(400).send('missing -player- parameter / given param was not a string');
     return;
   }
   
   const newDeck = req.body.deck;
   if (newDeck === undefined || typeof newDeck !== 'string') {
-    res.status(400).send('required argument "deck" was missing');
+    res.status(400).send('required argument -deck- was missing');
     return;
   }
 
   const newScore = req.body.score;
   if (newScore === undefined || typeof newScore !== 'number') {
-    res.status(400).send('required argument "score" was missing');
+    res.status(400).send('required argument -score- was missing');
     return;
   }
   // save data locally
@@ -106,7 +106,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
   let success: number = 0;
   const name = req.body.name;
   if (name === undefined || typeof name !== 'string') {
-    res.status(400).send('missing "name" parameter / given param was not a string');
+    res.status(400).send('missing -name- parameter / given param was not a string');
     return;
   }
 
@@ -116,7 +116,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
   }
   const content = req.body.content;
   if (content === undefined || typeof content !== 'string') {
-    res.status(400).send('required argument "content" was missing');
+    res.status(400).send('required argument -content- was missing');
     return;
   }
 
@@ -167,7 +167,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
 export const loadDeck = async (req: SafeRequest, res: SafeResponse): Promise<void> => {
   const name = first(req.query.name);
   if (name === undefined) {
-    res.status(400).send('missing "name" parameter');
+    res.status(400).send('missing -name- parameter');
     return;
   }
   
