@@ -11,10 +11,11 @@ type SafeRequest = Request<ParamsDictionary, {}, Record<string, unknown>>;
 type SafeResponse = Response;  // only writing, so no need to check
 
 type card = {front: string, back: string};
-type scoreRecord = {player: string, deck: string, score: number}
+// type scoreRecord = {player: string, deck: string, score: number}
 
-let savedScores: scoreRecord[] = [];
-const savedDecks: Map<string, card[]> = new Map<string, card[]>();
+// let savedScores: scoreRecord[] = [];
+// const savedDecks: Map<string, card[]> = new Map<string, card[]>();
+let savedDecks: string[] = [];
 const {Client} = pg;
 const fs = require('fs');
 
@@ -79,15 +80,16 @@ export const addScore = async(req: SafeRequest, res: SafeResponse): Promise<void
     res.status(400).send('required argument -score- was missing');
     return;
   }
-  // save data locally
-  const newEntry: scoreRecord = {player: newPlayer, deck: newDeck, score: newScore};
-  savedScores.push(newEntry);
 
   // save data to database
   try {
     const response = await con.query(`INSERT INTO scores(deckname, username, score) VALUES ('${newDeck}', '${newPlayer}', '${newScore}');`);
     if (response){
-       res.status(200).send({success: true});
+      res.status(200).send({success: true});
+
+      // save data locally
+      // const newEntry: scoreRecord = {player: newPlayer, deck: newDeck, score: newScore};
+      // savedScores.push(newEntry);
     }
   } catch (error) {
     res.status(500).send('Error');
@@ -110,7 +112,8 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
     return;
   }
 
-  if (savedDecks.has(name)) {
+  // if (savedDecks.has(name)) {
+  if (savedDecks.includes(name)) {
     res.send({saved: 1});
     return;
   }
@@ -125,7 +128,6 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
     res.send({saved: 2});
     return;
   }
-  savedDecks.set(name, cards);
 
   // insert deck name into deck table
   try {
@@ -136,6 +138,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
   } catch (error) {
     res.status(500).send('Error');
     console.log(error);
+    return;
   }
 
   // insert cards into cards table
@@ -148,11 +151,13 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
     } catch (error) {
       res.status(500).send('Error');
       console.log(error);
+      return;
     }
   }
 
   if (success === cards.length+1) {
     res.status(200).send({saved: 3});
+    // savedDecks.set(name, cards);
   } else {
     res.status(500).send('Error');
   }
@@ -173,19 +178,18 @@ export const loadDeck = async (req: SafeRequest, res: SafeResponse): Promise<voi
   
   // const result = savedDecks.get(name);
   // if (result === undefined) {
-  //   res.status(404).send('did not find deck with "name"');
-  //   return;
-  // }
-
-  try {
-    const response = await con.query(`SELECT front, back FROM cards WHERE deckname='${name}'`);
-    if (response){
-      res.send({cardset: response.rows});
+    try {
+      const response = await con.query(`SELECT front, back FROM cards WHERE deckname='${name}'`);
+      if (response){
+        res.send({cardset: response.rows});
+        return;
+      }
+    } catch (error) {
+      res.status(500).send(error);
+      console.log(error);
+      return;
     }
-  } catch (error) {
-    res.status(500).send(error);
-    console.log(error);
-  } 
+  // }
   //res.send({cardset: result});
 }
 
@@ -263,8 +267,9 @@ const parseNotecards = (content: string): card[]=> {
 /** Used in tests to set the transcripts map back to empty. */
 export const resetTranscriptsForTesting = (): void => {
   // Do not use this function except in tests!
-  savedDecks.clear();
-  savedScores = [];
+  // savedDecks.clear();
+  // savedScores = [];
+  savedDecks = [];
 };
 
 // Helper to return the (first) value of the parameter if any was given.
