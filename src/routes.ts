@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import pg from 'pg';
+import { GoogleGenAI } from "@google/genai";
 
 // import mysql from 'mysql';
 import dotenv from 'dotenv';
@@ -18,8 +19,7 @@ type card = {front: string, back: string};
 let savedDecks: string[] = [];
 const {Client} = pg;
 const fs = require('fs');
-
-// require('dotenv').config()
+const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GEMINI_API_KEY });
 
 const con: pg.Client = new Client({
    host: process.env.REACT_APP_HOST,
@@ -232,6 +232,31 @@ export const listScores = async (_req: SafeRequest, res: SafeResponse): Promise<
   } 
   //res.send({scores: vals});
 };
+
+export const getAISentence = async (req: SafeRequest, res: SafeResponse): Promise<void> => {
+  const tokens = first(req.query.tokens);
+  if (tokens === undefined || tokens === "") {
+    res.status(400).send('missing tokens parameter');
+    return;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: "Generate a sentence that clearly demonstrates the meaning of the following: " + tokens + 
+                ". If what I provided is not a valid word or phrase, please respond with the following word: meow." +
+                "Please try to give different sentences if I ask about the same word / phrases repeatedly." +
+                " And please try to use the word in different contexts if the word or phrase could mean different things." +
+                "If the provided text is not english, please generate a sentence in the given language."
+    });
+    if (response) {
+      res.send({answer: response.text})
+    }
+  } catch (error) {
+    res.status(500).send(error);
+    console.log(error)
+  }
+}
 
 /**
  * Parses a string into an array of cards
