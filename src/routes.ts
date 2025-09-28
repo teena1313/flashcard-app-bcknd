@@ -16,7 +16,6 @@ type card = {front: string, back: string};
 
 // let savedScores: scoreRecord[] = [];
 // const savedDecks: Map<string, card[]> = new Map<string, card[]>();
-let savedDecks: string[] = [];
 const {Client} = pg;
 const fs = require('fs');
 const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GEMINI_API_KEY });
@@ -113,10 +112,9 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
   }
 
   // if (savedDecks.has(name)) {
-  if (savedDecks.includes(name)) {
-    res.send({saved: 1});
-    return;
-  }
+  //   res.send({saved: 1});
+  //   return;
+  // }
   const content = req.body.content;
   if (content === undefined || typeof content !== 'string') {
     res.status(400).send('required argument -content- was missing');
@@ -125,7 +123,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
 
   const cards: card[] = parseNotecards(content);
   if (cards.length === 0) {
-    res.send({saved: 2});
+    res.send({saved: 0});
     return;
   }
 
@@ -156,7 +154,7 @@ export const addDeck = async (req: SafeRequest, res: SafeResponse): Promise<void
   }
 
   if (success === cards.length+1) {
-    res.status(200).send({saved: 3});
+    res.status(200).send({saved: 1});
     // savedDecks.set(name, cards);
   } else {
     res.status(500).send('Error');
@@ -294,7 +292,6 @@ export const resetTranscriptsForTesting = (): void => {
   // Do not use this function except in tests!
   // savedDecks.clear();
   // savedScores = [];
-  savedDecks = [];
 };
 
 // Helper to return the (first) value of the parameter if any was given.
